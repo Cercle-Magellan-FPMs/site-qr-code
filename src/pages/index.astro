@@ -1,0 +1,328 @@
+---
+import Layout from '../layouts/Layout.astro';
+import { EPC_CONFIG } from '../config.js';
+
+const formattedIban = EPC_CONFIG.iban.replace(/(.{4})/g, '$1 ').trim();
+---
+
+<Layout title="Virement Magellan — QR EPC">
+  <main class="shell">
+    <nav class="topbar">
+      <a class="brand" href="https://magellan.fpms.ac.be/" aria-label="Retour au site du Cercle Magellan">
+        <span class="brand-symbol" aria-hidden="true">@</span>
+        <span class="brand-text">
+          <strong>MAGELLAN</strong>
+          <small>Cercle informatique · FPMs</small>
+        </span>
+      </a>
+
+      <span class="protocol-pill">
+        <span class="protocol-dot"></span>
+        EPC · SEPA
+      </span>
+    </nav>
+
+    <section class="hero">
+      <p class="kicker">Virement bancaire</p>
+      <h1>Un QR. Un scan.<br /><span>Et c'est payé.</span></h1>
+      <p class="hero-copy">
+        Génère un QR bancaire compatible SEPA, directement sur ton appareil.
+        Aucune donnée n'est envoyée à un serveur.
+      </p>
+    </section>
+
+    <section class="workspace">
+      <div class="composer card">
+        <div class="card-heading">
+          <div>
+            <span class="step">01</span>
+            <h2>Prépare ton virement</h2>
+          </div>
+          <span class="currency">EUR</span>
+        </div>
+
+        <form id="payment-form" novalidate>
+          <label class="field-title" for="amount">Montant</label>
+
+          <div class="amount-input-wrap">
+            <span class="amount-currency">€</span>
+            <input
+              id="amount"
+              name="amount"
+              type="text"
+              inputmode="decimal"
+              autocomplete="off"
+              placeholder="0,00"
+              aria-describedby="amount-error"
+            />
+          </div>
+
+          <div class="quick-grid" aria-label="Montants rapides">
+            {[5, 10, 15, 20].map((amount) => (
+              <button type="button" class="quick-amount" data-amount={amount}>
+                {amount} €
+              </button>
+            ))}
+          </div>
+
+          <p id="amount-error" class="error" role="alert"></p>
+
+          <div class="field-header">
+            <label class="field-title" for="comment">Communication</label>
+            <span id="comment-count">0 / 140</span>
+          </div>
+
+          <textarea
+            id="comment"
+            name="comment"
+            maxlength="140"
+            rows="3"
+            placeholder="Ex. Cotisation Magellan"
+          ></textarea>
+
+          <div class="privacy-note">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M7 10V8a5 5 0 0 1 10 0v2m-11 0h12a1 1 0 0 1 1 1v9H5v-9a1 1 0 0 1 1-1Z" />
+            </svg>
+            <span>Montant et communication sont conservés uniquement dans ton navigateur.</span>
+          </div>
+        </form>
+
+        <div class="bank">
+          <div class="bank-main">
+            <span class="bank-logo" aria-hidden="true">M</span>
+            <div>
+              <span class="meta">Bénéficiaire</span>
+              <strong>{EPC_CONFIG.beneficiary}</strong>
+            </div>
+          </div>
+
+          <div class="bank-details">
+            <div>
+              <span class="meta">IBAN</span>
+              <strong>{formattedIban}</strong>
+            </div>
+            <div>
+              <span class="meta">BIC</span>
+              <strong>{EPC_CONFIG.bic}</strong>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="result card">
+        <div class="card-heading">
+          <div>
+            <span class="step">02</span>
+            <h2>Scanne le QR</h2>
+          </div>
+          <span class="local-pill">Local</span>
+        </div>
+
+        <div class="qr-zone">
+          <div id="qr-empty" class="empty-state">
+            <div class="fake-qr" aria-hidden="true">
+              <i></i><i></i><i></i><i></i><i></i><i></i>
+            </div>
+            <strong>Prêt quand tu l'es</strong>
+            <p>Entre un montant pour générer ton QR de virement.</p>
+          </div>
+
+          <div id="qr-ready" class="qr-ready" hidden>
+            <div class="qr-shell">
+              <canvas id="qr-canvas" aria-label="QR Code EPC du virement"></canvas>
+            </div>
+
+            <div class="amount-summary">
+              <span>Montant du virement</span>
+              <strong id="amount-summary">—</strong>
+            </div>
+          </div>
+        </div>
+
+        <p id="payload-error" class="error centered" role="alert"></p>
+
+        <div class="actions">
+          <button id="download" class="btn btn-primary" type="button" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M12 3v12m0 0 5-5m-5 5-5-5M5 20h14" />
+            </svg>
+            Télécharger
+          </button>
+          <button id="copy" class="btn btn-secondary" type="button" disabled>
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M9 8h10v12H9zM5 4h10v4M5 4v12h4" />
+            </svg>
+            Copier les données
+          </button>
+        </div>
+
+        <button id="reset" class="reset" type="button">Réinitialiser</button>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>
+        Vérifie toujours le bénéficiaire, l'IBAN et le montant dans ton application bancaire avant de confirmer.
+      </p>
+
+      <details>
+        <summary>Détails techniques</summary>
+        <p>EPC069-12 · version 002 · SCT · UTF-8 · correction QR niveau M.</p>
+        <pre id="payload-preview"></pre>
+      </details>
+
+      <a href="https://magellan.fpms.ac.be/" target="_blank" rel="noreferrer">
+        magellan.fpms.ac.be
+        <span aria-hidden="true">↗</span>
+      </a>
+    </footer>
+  </main>
+
+  <script>
+    import QRCode from 'qrcode';
+    import { EPC_CONFIG } from '../config.js';
+    import { buildEpcPayload, parseAmount } from '../epc.js';
+
+    const STORAGE_KEYS = {
+      amount: 'magellan-epc-amount',
+      comment: 'magellan-epc-comment',
+    };
+
+    const amountInput = document.querySelector('#amount');
+    const commentInput = document.querySelector('#comment');
+    const amountError = document.querySelector('#amount-error');
+    const payloadError = document.querySelector('#payload-error');
+    const commentCount = document.querySelector('#comment-count');
+    const canvas = document.querySelector('#qr-canvas');
+    const emptyState = document.querySelector('#qr-empty');
+    const readyState = document.querySelector('#qr-ready');
+    const amountSummary = document.querySelector('#amount-summary');
+    const downloadButton = document.querySelector('#download');
+    const copyButton = document.querySelector('#copy');
+    const resetButton = document.querySelector('#reset');
+    const payloadPreview = document.querySelector('#payload-preview');
+    const quickAmounts = document.querySelectorAll('.quick-amount');
+
+    if (
+      amountInput instanceof HTMLInputElement &&
+      commentInput instanceof HTMLTextAreaElement &&
+      amountError instanceof HTMLElement &&
+      payloadError instanceof HTMLElement &&
+      commentCount instanceof HTMLElement &&
+      canvas instanceof HTMLCanvasElement &&
+      emptyState instanceof HTMLElement &&
+      readyState instanceof HTMLElement &&
+      amountSummary instanceof HTMLElement &&
+      downloadButton instanceof HTMLButtonElement &&
+      copyButton instanceof HTMLButtonElement &&
+      resetButton instanceof HTMLButtonElement &&
+      payloadPreview instanceof HTMLElement
+    ) {
+      amountInput.value = localStorage.getItem(STORAGE_KEYS.amount) ?? '';
+      commentInput.value = localStorage.getItem(STORAGE_KEYS.comment) ?? '';
+
+      let currentPayload = '';
+
+      const setVisible = (visible) => {
+        emptyState.hidden = visible;
+        readyState.hidden = !visible;
+        downloadButton.disabled = !visible;
+        copyButton.disabled = !visible;
+      };
+
+      const render = async () => {
+        amountError.textContent = '';
+        payloadError.textContent = '';
+        payloadPreview.textContent = '';
+        currentPayload = '';
+
+        localStorage.setItem(STORAGE_KEYS.amount, amountInput.value);
+        localStorage.setItem(STORAGE_KEYS.comment, commentInput.value);
+        commentCount.textContent = `${commentInput.value.length} / 140`;
+
+        const amount = parseAmount(amountInput.value);
+
+        if (amount === null) {
+          if (amountInput.value.trim()) {
+            amountError.textContent = 'Entre un montant valide avec maximum deux décimales.';
+          }
+          amountSummary.textContent = '—';
+          setVisible(false);
+          return;
+        }
+
+        try {
+          const { payload, bytes } = buildEpcPayload({
+            ...EPC_CONFIG,
+            amount,
+            comment: commentInput.value,
+          });
+
+          currentPayload = payload;
+          amountSummary.textContent = new Intl.NumberFormat('fr-BE', {
+            style: 'currency',
+            currency: 'EUR',
+          }).format(amount);
+          payloadPreview.textContent = `${payload}\n\n${bytes} / 331 octets`;
+
+          await QRCode.toCanvas(canvas, payload, {
+            errorCorrectionLevel: 'M',
+            margin: 3,
+            width: 720,
+            color: {
+              dark: '#00040b',
+              light: '#ffffff',
+            },
+          });
+
+          setVisible(true);
+        } catch (error) {
+          payloadError.textContent =
+            error instanceof Error ? error.message : 'Impossible de générer le QR Code.';
+          setVisible(false);
+        }
+      };
+
+      amountInput.addEventListener('input', render);
+      commentInput.addEventListener('input', render);
+
+      quickAmounts.forEach((button) => {
+        button.addEventListener('click', () => {
+          if (!(button instanceof HTMLButtonElement)) return;
+          amountInput.value = button.dataset.amount ?? '';
+          render();
+        });
+      });
+
+      downloadButton.addEventListener('click', () => {
+        if (!currentPayload) return;
+        const link = document.createElement('a');
+        link.download = 'virement-magellan-epc.png';
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      });
+
+      copyButton.addEventListener('click', async () => {
+        if (!currentPayload) return;
+        await navigator.clipboard.writeText(currentPayload);
+        const initial = copyButton.innerHTML;
+        copyButton.textContent = 'Copié ✓';
+        window.setTimeout(() => {
+          copyButton.innerHTML = initial;
+        }, 1200);
+      });
+
+      resetButton.addEventListener('click', () => {
+        localStorage.removeItem(STORAGE_KEYS.amount);
+        localStorage.removeItem(STORAGE_KEYS.comment);
+        amountInput.value = '';
+        commentInput.value = '';
+        render();
+        amountInput.focus();
+      });
+
+      render();
+    }
+  </script>
+</Layout>
