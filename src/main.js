@@ -15,11 +15,13 @@ const payloadError = document.querySelector('#payload-error');
 const commentCount = document.querySelector('#comment-count');
 const canvas = document.querySelector('#qr-canvas');
 const emptyState = document.querySelector('#qr-empty');
+const qrFrame = document.querySelector('.qr-frame');
 const downloadButton = document.querySelector('#download');
 const copyButton = document.querySelector('#copy');
 const resetButton = document.querySelector('#reset');
 const payloadPreview = document.querySelector('#payload-preview');
 const beneficiaryDisplay = document.querySelector('#beneficiary-display');
+const quickAmounts = document.querySelectorAll('.quick-amount');
 
 beneficiaryDisplay.textContent = EPC_CONFIG.beneficiary;
 amountInput.value = localStorage.getItem(STORAGE_KEYS.amount) ?? '';
@@ -33,6 +35,7 @@ function updateCount() {
 
 function setQrVisibility(visible) {
   canvas.hidden = !visible;
+  qrFrame.hidden = !visible;
   emptyState.hidden = visible;
   downloadButton.disabled = !visible;
   copyButton.disabled = !visible;
@@ -50,7 +53,9 @@ async function render() {
 
   const amount = parseAmount(amountInput.value);
   if (amount === null) {
-    if (amountInput.value.trim()) amountError.textContent = 'Entre un montant valide, avec maximum deux décimales.';
+    if (amountInput.value.trim()) {
+      amountError.textContent = 'Entre un montant valide, avec maximum deux décimales.';
+    }
     setQrVisibility(false);
     return;
   }
@@ -67,20 +72,29 @@ async function render() {
 
     await QRCode.toCanvas(canvas, payload, {
       errorCorrectionLevel: 'M',
-      margin: 4,
-      width: 320,
-      color: { dark: '#111827', light: '#ffffff' },
+      margin: 3,
+      width: 640,
+      color: { dark: '#00040b', light: '#ffffff' },
     });
 
     setQrVisibility(true);
   } catch (error) {
-    payloadError.textContent = error instanceof Error ? error.message : 'Impossible de générer le QR Code.';
+    payloadError.textContent =
+      error instanceof Error ? error.message : 'Impossible de générer le QR Code.';
     setQrVisibility(false);
   }
 }
 
 amountInput.addEventListener('input', render);
 commentInput.addEventListener('input', render);
+
+quickAmounts.forEach((button) => {
+  button.addEventListener('click', () => {
+    amountInput.value = button.dataset.amount ?? '';
+    render();
+    amountInput.focus();
+  });
+});
 
 downloadButton.addEventListener('click', () => {
   if (!currentPayload) return;
@@ -94,8 +108,10 @@ copyButton.addEventListener('click', async () => {
   if (!currentPayload) return;
   await navigator.clipboard.writeText(currentPayload);
   const initial = copyButton.textContent;
-  copyButton.textContent = 'Copié';
-  setTimeout(() => { copyButton.textContent = initial; }, 1200);
+  copyButton.textContent = 'Copié ✓';
+  setTimeout(() => {
+    copyButton.textContent = initial;
+  }, 1200);
 });
 
 resetButton.addEventListener('click', () => {
