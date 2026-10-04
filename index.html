@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#111827" />
+    <meta name="description" content="Générateur de QR Code EPC pour les virements vers le cercle informatique de la fpms." />
+    <title>Virement Magellan — QR EPC</title>
+  </head>
+  <body>
+    <main class="page-shell">
+      <section class="card" aria-labelledby="page-title">
+        <div class="heading">
+          <p class="eyebrow">cercle informatique de la fpms</p>
+          <h1 id="page-title">QR Code de virement</h1>
+          <p class="intro">Encode un virement SEPA au format EPC v2. Le QR est généré uniquement dans ton navigateur.</p>
+        </div>
+
+        <div class="bank-card" aria-label="Coordonnées bancaires">
+          <div>
+            <span class="label">Bénéficiaire</span>
+            <strong id="beneficiary-display"></strong>
+          </div>
+          <div>
+            <span class="label">IBAN</span>
+            <strong>BE70 7512 1182 7125</strong>
+          </div>
+          <div>
+            <span class="label">BIC</span>
+            <strong>NICABEBBXXX</strong>
+          </div>
+        </div>
+
+        <form id="payment-form" novalidate>
+          <label for="amount">Montant</label>
+          <div class="amount-field">
+            <span>€</span>
+            <input id="amount" name="amount" type="text" inputmode="decimal" autocomplete="off" placeholder="10,00" aria-describedby="amount-help amount-error" />
+          </div>
+          <p id="amount-help" class="help">Entre un montant entre 0,01 € et 999 999 999,99 €.</p>
+          <p id="amount-error" class="error" role="alert"></p>
+
+          <label for="comment">Communication</label>
+          <textarea id="comment" name="comment" rows="3" maxlength="140" placeholder="Ex. Cotisation Magellan"></textarea>
+          <div class="field-footer">
+            <span class="help">Communication libre, facultative.</span>
+            <span id="comment-count" class="counter">0 / 140</span>
+          </div>
+        </form>
+
+        <div class="qr-panel">
+          <div id="qr-empty" class="qr-empty">Entre un montant valide pour générer le QR Code.</div>
+          <canvas id="qr-canvas" hidden aria-label="QR Code EPC pour le virement"></canvas>
+          <p id="payload-error" class="error centered" role="alert"></p>
+        </div>
+
+        <div class="actions">
+          <button id="download" class="primary" type="button" disabled>Télécharger le QR</button>
+          <button id="copy" type="button" disabled>Copier les données EPC</button>
+          <button id="reset" class="ghost" type="button">Réinitialiser</button>
+        </div>
+
+        <details>
+          <summary>Détails techniques</summary>
+          <p>Format EPC069-12, version 002, virement SCT, UTF-8, correction QR niveau M.</p>
+          <pre id="payload-preview"></pre>
+        </details>
+
+        <p class="notice">Vérifie toujours le bénéficiaire, l’IBAN et le montant dans ton application bancaire avant de confirmer le virement.</p>
+      </section>
+    </main>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>
