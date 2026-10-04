@@ -89,17 +89,13 @@ button {
 }
 
 .brand-symbol {
-  display: grid;
-  place-items: center;
+  display: block;
   width: 44px;
   height: 44px;
   flex: 0 0 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  color: #001313;
-  font-size: 1.65rem;
-  font-weight: 700;
-  box-shadow: 0 0 30px rgba(66, 225, 221, .13);
+  object-fit: contain;
+  filter: drop-shadow(0 0 18px rgba(66, 225, 221, .14));
 }
 
 .brand-text {
