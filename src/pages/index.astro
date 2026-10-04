@@ -153,7 +153,7 @@ const formattedIban = EPC_CONFIG.iban.replace(/(.{4})/g, '$1 ').trim();
             <svg viewBox="0 0 24 24" aria-hidden="true">
               <path d="M9 8h10v12H9zM5 4h10v4M5 4v12h4" />
             </svg>
-            Copier les données
+            Copier le numéro de compte
           </button>
         </div>
 
@@ -305,7 +305,7 @@ const formattedIban = EPC_CONFIG.iban.replace(/(.{4})/g, '$1 ').trim();
 
       copyButton.addEventListener('click', async () => {
         if (!currentPayload) return;
-        await navigator.clipboard.writeText(currentPayload);
+        await navigator.clipboard.writeText(EPC_CONFIG.iban);
         const initial = copyButton.innerHTML;
         copyButton.textContent = 'Copié ✓';
         window.setTimeout(() => {
