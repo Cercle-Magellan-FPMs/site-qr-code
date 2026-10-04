@@ -1,27 +1,28 @@
-# Site QR Code — cercle informatique de la fpms
+# Site QR Code — Cercle informatique de la FPMs
 
-Site statique pour générer un QR Code de virement SEPA conforme au format EPC069-12 v2.
+Générateur statique de QR Codes de virement SEPA/EPC, construit avec Astro.
 
 ## Coordonnées configurées
 
+- Bénéficiaire : `cercle informatique de la fpms`
 - IBAN : `BE70 7512 1182 7125`
 - BIC : `NICABEBBXXX`
-- Bénéficiaire : `cercle informatique de la fpms`
 
-Le nom du titulaire est défini dans `src/config.js`. Il doit correspondre au nom du bénéficiaire attendu par la banque.
+La configuration bancaire se trouve dans `src/config.js`.
 
 ## Fonctionnalités
 
-- EPC version `002`, SCT, UTF-8
-- QR généré côté navigateur avec correction d'erreur `M`
-- montant saisi par le visiteur
-- communication libre jusqu'à 140 caractères
-- montant et communication conservés dans `localStorage`
+- Astro en sortie statique
+- QR EPC069-12 version `002`
+- virement SCT / UTF-8
+- montant libre avec raccourcis
+- communication facultative jusqu'à 140 caractères
+- conservation locale via `localStorage`
+- génération du QR exclusivement côté navigateur
 - validation IBAN mod-97
-- limite EPC de 331 octets
-- téléchargement PNG et copie du payload EPC
-- aucune API ni backend
-- déploiement Vercel prêt à l'emploi
+- téléchargement PNG
+- copie du payload EPC
+- interface mobile-first reprenant le branding Magellan
 
 ## Développement
 
@@ -36,6 +37,14 @@ npm run dev
 npm run build
 ```
 
-## Déploiement Vercel
+Le résultat statique est généré dans `dist/`.
 
-Importer le dépôt dans Vercel. Le projet est détecté comme Vite ; `vercel.json` fixe également la commande de build et le dossier `dist`.
+## Dokploy
+
+Configurer l'application en **Static** :
+
+- Branch : `main`
+- Build Path : `/`
+- Build Command : `npm run build`
+- Publish Directory : `dist`
+- Container Port : `80`
